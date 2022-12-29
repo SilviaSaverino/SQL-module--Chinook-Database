@@ -1,6 +1,6 @@
 ![CI logo](https://codeinstitute.s3.amazonaws.com/fullstack/ci_logo_small.png)
 
-Welcome USER_NAME,
+Welcome Silvia Saverino,
 
 This is the Code Institute student template for Gitpod. We have preinstalled all of the tools you need to get started. It's perfectly ok to use this template as the basis for your project submissions.
 
@@ -106,3 +106,87 @@ Yes! We'd strongly encourage you to look at the source code of the `uptime.sh` f
 ---
 
 Happy coding!
+
+
+**steps to follow for this module**
+in the terminal type: 
+1)wget https://raw.githubusercontent.com/lerocha/chinook-database/master/ChinookDatabase/DataSources/Chinook_PostgreSql.sql (+pasteURLRawChinookLink)
+
+2) launch Postgres CLI:
+type:
+set_pg
+psql
+
+3) to view or list and database in pur enviroment type:
+\l
+
+4) to create a new database using chinook:
+type: CREATE DATABASE chinook;  
+this will create another database, hit \l again to see its name chinook
+
+5) If we needed to switch between databases, we can simply type \c (stands for connect )followed by the name
+of the database we want to switch over to.
+\c postgres 
+type: \c chinook
+
+6) Finally, while we're connected to our new chinook database, we need to initialize or
+install the downloaded sample Chinook PostgreSQL database.
+The \i generally means include, integrate, install, or initialize.
+type: \i Chinook_PostgreSql.sql 
+
+7) \q to quit
+
+--------------------------------------------------------------------
+
+'psql -d chinook' . This will start the server, and tell it that
+the database we want to connect to is the one called "chinook", as declared by using the -d flag to specify a database name.
+
+Next, we need to confirm that all tables and data were successfully added to the database.
+'\dt' . This will allow us to display tables on our database.
+
+First, let's start by retrieving all data from the Artist table.
+type: SELECT * FROM "Artist";
+
+Technically you don't need to write the SQL commands in capital letters, but it's standard
+practice to distinguish between the different pieces of your query string.
+The asterisk is a common programming method to signify a wildcard, which essentially means
+to select anything and everything.
+Also note, I've used double-quotes intentionally, because using single-quotes will throw a 'syntax error', 
+
+type: q to return - NOT \q
+
+Next, let's query the same table, but this time, only retrieve the "Name" column.
+SELECT "Name" FROM "Artist";
+
+For the next query, I will search the same table, but this time I am going to specify
+a particular artist name using the WHERE clause.
+SELECT * FROM "Artist" WHERE "Name" = 'Queen';
+
+As you may have noticed, I've used double-quotes again, except when it comes to the specific
+value I'd like to search for, which must be in single-quotes.
+This is to distinguish between the various table and column names, versus the specific
+context or value I need to find.
+
+I'll perform the same exact query, but this time we'll specify the ArtistId of 51 instead of the artist name.
+Since 51 is a primary key and integer, we don't need the single-quotes, but it will
+still work if you include them.
+SELECT * FROM "Artist" WHERE "ArtistId" = 51;
+
+...now looking at the Album table
+SELECT * FROM "Album" WHERE "ArtistId" = 51;
+
+For our final sample query, I'm going to look within the table called "Track", and use the
+column header of "Composer" to search for all tracks by Queen.
+You can see that only 9 tracks are listed, all of which belong to the "Greatest Hits 2" album,
+SELECT * FROM "Track" WHERE "Composer" = 'Queen';
+
+In a real-world scenario, you should probably consider making the Composer column actually
+be the ArtistId foreign key, to keep with the relational database schema.
+
+-------------------------------------------------------------------------------
+to create a json file or csv file from these tables, type:
+\copy (SELECT * FROM "Track" WHERE "Composer" = 'Queen') TO 'test.csv' WITH CSV DELIMITER ',' HEADER;
+
+\o test.json
+
+SELECT json_agg(t) FROM (SELECT * FROM "Track" WHERE "Composer" = 'Queen') t;
