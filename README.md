@@ -1,197 +1,200 @@
-![CI logo](https://codeinstitute.s3.amazonaws.com/fullstack/ci_logo_small.png)
+***01 - Installing the Chinook Database***
+Download the Chinook PostgreSql database
 
-Welcome Silvia Saverino,
+    source
+    wget https://raw.githubusercontent.com/lerocha/chinook-database/master/ChinookDatabase/DataSources/Chinook_PostgreSql.sql
 
-This is the Code Institute student template for Gitpod. We have preinstalled all of the tools you need to get started. It's perfectly ok to use this template as the basis for your project submissions.
+Access the Postgres CLI
 
-You can safely delete this README.md file, or change it for your own project. Please do read it at least once, though! It contains some important information about Gitpod and the extensions we use. Some of this information has been updated since the video content was created. The last update to this file was: **September 1, 2021**
+    psql
 
-## Gitpod Reminders
+Create the new "chinook" database
 
-To run a frontend (HTML, CSS, Javascript only) application in Gitpod, in the terminal, type:
+    CREATE DATABASE chinook;
 
-`python3 -m http.server`
+View existing tables on the database
 
-A blue button should appear to click: _Make Public_,
+    \l
 
-Another blue button should appear to click: _Open Browser_.
+Switch between databases
 
-To run a backend Python file, type `python3 app.py`, if your Python file is named `app.py` of course.
+    \c postgres (switch to the database called "postgres")
+    \c chinook (switch to the database called "chinook")
 
-A blue button should appear to click: _Make Public_,
+Install / Initialize the downloaded Chinook SQL database
 
-Another blue button should appear to click: _Open Browser_.
+    \i Chinook_PostgreSql.sql (takes several minutes)
 
-In Gitpod you have superuser security privileges by default. Therefore you do not need to use the `sudo` (superuser do) command in the bash terminal in any of the lessons.
+**02 - PostgreSQL from the Command Line**
+Quit the entire Postgres CLI
 
-To log into the Heroku toolbelt CLI:
+    \q
 
-1. Log in to your Heroku account and go to *Account Settings* in the menu under your avatar.
-2. Scroll down to the *API Key* and click *Reveal*
-3. Copy the key
-4. In Gitpod, from the terminal, run `heroku_config`
-5. Paste in your API key when asked
+Connect to the "chinook" Postgres CLI database
 
-You can now use the `heroku` CLI program - try running `heroku apps` to confirm it works. This API key is unique and private to you so do not share it. If you accidentally make it public then you can create a new one with _Regenerate API Key_.
+    psql -d chinook
 
-------
+Display all tables on the "chinook" database
 
-## Release History
+    \dt
 
-We continually tweak and adjust this template to help give you the best experience. Here is the version history:
+Quit the query / return back to CLI after a query
 
-**September 1 2021:** Remove `PGHOSTADDR` environment variable.
+    q
 
-**July 19 2021:** Remove `font_fix` script now that the terminal font issue is fixed.
+Retrieve all data from the "Artist" table
 
-**July 2 2021:** Remove extensions that are not available in Open VSX.
+    SELECT * FROM "Artist";
 
-**June 30 2021:** Combined the P4 and P5 templates into one file, added the uptime script. See the FAQ at the end of this file.
+Retrieve only the "Name" column from the "Artist" table
 
-**June 10 2021:** Added: `font_fix` script and alias to fix the Terminal font issue
+    SELECT "Name" FROM "Artist";
 
-**May 10 2021:** Added `heroku_config` script to allow Heroku API key to be stored as an environment variable.
+Retrieve only "Queen" from the "Artist" table
 
-**April 7 2021:** Upgraded the template for VS Code instead of Theia.
+    SELECT * FROM "Artist" WHERE "Name" = 'Queen';
 
-**October 21 2020:** Versions of the HTMLHint, Prettier, Bootstrap4 CDN and Auto Close extensions updated. The Python extension needs to stay the same version for now.
+Retrieve only "Queen" from the "Artist" table, but using the "ArtistId" of '51'
 
-**October 08 2020:** Additional large Gitpod files (`core.mongo*` and `core.python*`) are now hidden in the Explorer, and have been added to the `.gitignore` by default.
+    SELECT * FROM "Artist" WHERE "ArtistId" = 51;
 
-**September 22 2020:** Gitpod occasionally creates large `core.Microsoft` files. These are now hidden in the Explorer. A `.gitignore` file has been created to make sure these files will not be committed, along with other common files.
+Retrieve all albums from the "Album" table, using the "ArtistId" of '51'
 
-**April 16 2020:** The template now automatically installs MySQL instead of relying on the Gitpod MySQL image. The message about a Python linter not being installed has been dealt with, and the set-up files are now hidden in the Gitpod file explorer.
+    SELECT * FROM "Album" WHERE "ArtistId" = 51;
 
-**April 13 2020:** Added the _Prettier_ code beautifier extension instead of the code formatter built-in to Gitpod.
+Retrieve all tracks from the "Track" table, using the "Composer" of 'Queen'
 
-**February 2020:** The initialisation files now _do not_ auto-delete. They will remain in your project. You can safely ignore them. They just make sure that your workspace is configured correctly each time you open it. It will also prevent the Gitpod configuration popup from appearing.
+    SELECT * FROM "Track" WHERE "Composer" = 'Queen';
 
-**December 2019:** Added Eventyret's Bootstrap 4 extension. Type `!bscdn` in a HTML file to add the Bootstrap boilerplate. Check out the <a href="https://github.com/Eventyret/vscode-bcdn" target="_blank">README.md file at the official repo</a> for more options.
+OPTIONAL
+Copy the results into a .CSV file
 
-------
+    \copy (SELECT * FROM "Track" WHERE "Composer" = 'Queen') TO 'test.csv' WITH CSV DELIMITER ',' HEADER;
 
-## FAQ about the uptime script
+Copy the results into a .JSON file
 
-**Why have you added this script?**
+    Line 1: \o test.json
+    Line 2: SELECT json_agg(t) FROM  (SELECT * FROM "Track" WHERE "Composer" = 'Queen') t;
 
-It will help us to calculate how many running workspaces there are at any one time, which greatly helps us with cost and capacity planning. It will help us decide on the future direction of our cloud-based IDE strategy.
+**03 - Installing the Libraries and Setting Up**
+Install the "psycopg2" Python package
 
-**How will this affect me?**
+    pip3 install psycopg2
 
-For everyday usage of Gitpod, it doesn’t have any effect at all. The script only captures the following data:
+Create a new file: "sql-psycopg2.py"
 
-- An ID that is randomly generated each time the workspace is started.
-- The current date and time
-- The workspace status of “started” or “running”, which is sent every 5 minutes.
+    touch sql-psycopg2.py
 
-It is not possible for us or anyone else to trace the random ID back to an individual, and no personal data is being captured. It will not slow down the workspace or affect your work.
+**04 - Introducing an ORM**
+Install the "SQLAlchemy" Python package
 
-**So….?**
+    pip3 install SQLAlchemy
 
-We want to tell you this so that we are being completely transparent about the data we collect and what we do with it.
+**05 - Running Basic Queries**
+Create a new file called "sql-expression.py"
 
-**Can I opt out?**
+    touch sql-expression.py
 
-Yes, you can. Since no personally identifiable information is being captured, we'd appreciate it if you let the script run; however if you are unhappy with the idea, simply run the following commands from the terminal window after creating the workspace, and this will remove the uptime script:
+Query 1 - select all records from the "Artist" table
 
-```
-pkill uptime.sh
-rm .vscode/uptime.sh
-```
+    select_query = artist_table.select()
 
-**Anything more?**
+Query 2 - select only the "Name" column from the "Artist" table
 
-Yes! We'd strongly encourage you to look at the source code of the `uptime.sh` file so that you know what it's doing. As future software developers, it will be great practice to see how these shell scripts work.
+    select_query = artist_table.select().with_only_columns([artist_table.c.Name])
 
----
+Query 3 - select only 'Queen' from the "Artist" table
 
-Happy coding!
+    select_query = artist_table.select().where(artist_table.c.Name == "Queen")
 
+Query 4 - select only by 'ArtistId' #51 from the "Artist" table
 
-**steps to follow for this module**
-in the terminal type: 
-1)wget https://raw.githubusercontent.com/lerocha/chinook-database/master/ChinookDatabase/DataSources/Chinook_PostgreSql.sql (+pasteURLRawChinookLink)
+    select_query = artist_table.select().where(artist_table.c.ArtistId == 51)
 
-2) launch Postgres CLI:
-type:
-set_pg
-psql
+Query 5 - select only the albums with 'ArtistId' #51 on the "Album" table
 
-3) to view or list and database in pur enviroment type:
-\l
+    select_query = album_table.select().where(album_table.c.ArtistId == 51)
 
-4) to create a new database using chinook:
-type: CREATE DATABASE chinook;  
-this will create another database, hit \l again to see its name chinook
+Query 6 - select all tracks where the composer is 'Queen' from the "Track" table
 
-5) If we needed to switch between databases, we can simply type \c (stands for connect )followed by the name
-of the database we want to switch over to.
-\c postgres 
-type: \c chinook
+    select_query = track_table.select().where(track_table.c.Composer == "Queen")
 
-6) Finally, while we're connected to our new chinook database, we need to initialize or
-install the downloaded sample Chinook PostgreSQL database.
-The \i generally means include, integrate, install, or initialize.
-type: \i Chinook_PostgreSql.sql 
+**06 - Introducing Class-Based Models**
+Create a new file called "sql-orm.py"
 
-7) \q to quit
+    touch sql-orm.py
 
---------------------------------------------------------------------
+Query 1 - select all records from the "Artist" table
 
-'psql -d chinook' . This will start the server, and tell it that
-the database we want to connect to is the one called "chinook", as declared by using the -d flag to specify a database name.
+artists = session.query(Artist)
+for artist in artists:
+    print(artist.ArtistId, artist.Name, sep=" | ")
 
-Next, we need to confirm that all tables and data were successfully added to the database.
-'\dt' . This will allow us to display tables on our database.
+Query 2 - select only the "Name" column from the "Artist" table
 
-First, let's start by retrieving all data from the Artist table.
-type: SELECT * FROM "Artist";
+artists = session.query(Artist)
+for artist in artists:
+    print(artist.Name)
 
-Technically you don't need to write the SQL commands in capital letters, but it's standard
-practice to distinguish between the different pieces of your query string.
-The asterisk is a common programming method to signify a wildcard, which essentially means
-to select anything and everything.
-Also note, I've used double-quotes intentionally, because using single-quotes will throw a 'syntax error', 
+Query 3 - select only "Queen" from the "Artist" table
 
-type: q to return - NOT \q
+artist = session.query(Artist).filter_by(Name="Queen").first()
+print(artist.ArtistId, artist.Name, sep=" | ")
 
-Next, let's query the same table, but this time, only retrieve the "Name" column.
-SELECT "Name" FROM "Artist";
+Query 4 - select only by "ArtistId" #51 from the "Artist" table
 
-For the next query, I will search the same table, but this time I am going to specify
-a particular artist name using the WHERE clause.
-SELECT * FROM "Artist" WHERE "Name" = 'Queen';
+artist = session.query(Artist).filter_by(ArtistId=51).first()
+print(artist.ArtistId, artist.Name, sep=" | ")
 
-As you may have noticed, I've used double-quotes again, except when it comes to the specific
-value I'd like to search for, which must be in single-quotes.
-This is to distinguish between the various table and column names, versus the specific
-context or value I need to find.
+Query 5 - select only the albums with "ArtistId" #51 on the "Album" table
 
-I'll perform the same exact query, but this time we'll specify the ArtistId of 51 instead of the artist name.
-Since 51 is a primary key and integer, we don't need the single-quotes, but it will
-still work if you include them.
-SELECT * FROM "Artist" WHERE "ArtistId" = 51;
+albums = session.query(Album).filter_by(ArtistId=51)
+for album in albums:
+    print(album.AlbumId, album.Title, album.ArtistId, sep=" | ")
 
-...now looking at the Album table
-SELECT * FROM "Album" WHERE "ArtistId" = 51;
+Query 6 - select all tracks where the composer is "Queen" from the "Track" table
 
-For our final sample query, I'm going to look within the table called "Track", and use the
-column header of "Composer" to search for all tracks by Queen.
-You can see that only 9 tracks are listed, all of which belong to the "Greatest Hits 2" album,
-SELECT * FROM "Track" WHERE "Composer" = 'Queen';
+tracks = session.query(Track).filter_by(Composer="Queen")
+for track in tracks:
+    print(
+        track.TrackId,
+        track.Name,
+        track.AlbumId,
+        track.MediaTypeId,
+        track.GenreId,
+        track.Composer,
+        track.Milliseconds,
+        track.Bytes,
+        track.UnitPrice,
+        sep=" | "
+    )
+***CHALLENGE***
+07 - CodeAlong: Create and Read
+Your Challenge
 
-In a real-world scenario, you should probably consider making the Composer column actually
-be the ArtistId foreign key, to keep with the relational database schema.
+    Create a new record for yourself on the Programmer table.
 
--------------------------------------------------------------------------------
-to create a json file or csv file from these tables, type:
-\copy (SELECT * FROM "Track" WHERE "Composer" = 'Queen') TO 'test.csv' WITH CSV DELIMITER ',' HEADER;
+Reminders
 
-\o test.json
+    Remember to comment-out your previous session(s) to avoid duplicates.
+    The key of famous_for can be anything you'd like to celebrate about yourself.
+    Once added, your record should have the primary_key of 7, if following along.
+    Don't panicif your primary_key isn't 7, just make note of the actual PK for later.
 
-SELECT json_agg(t) FROM (SELECT * FROM "Track" WHERE "Composer" = 'Queen') t;
+**07 - CodeAlong: Create and Read**
+Create a new file called "sql-crud.py"
 
-** using python! **
-1) pip3 install psycopg2
-2) create a python file
-    type: touch sql-ppsycopg2.py
+    touch sql-crud.py
+
+**08 - CodeAlong: Update and Delete**
+Your Challenge
+
+    Continue building new tables and performing CRUD functionality.
+    Practice Makes Perfect!
+
+Reminders / Ideas
+
+    Remember to comment-out your previous command(s)/session(s).
+    A table for your favorite places (country name, capital city, population, etc.)
+    A table for your favorite games (release year, console name, etc.)
+    Remember to test the various CRUD functionalities.
