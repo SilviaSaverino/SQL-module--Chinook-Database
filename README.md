@@ -190,3 +190,8 @@ to create a json file or csv file from these tables, type:
 \o test.json
 
 SELECT json_agg(t) FROM (SELECT * FROM "Track" WHERE "Composer" = 'Queen') t;
+
+** using python! **
+1) pip3 install psycopg2
+2) create a python file
+    type: touch sql-ppsycopg2.py
